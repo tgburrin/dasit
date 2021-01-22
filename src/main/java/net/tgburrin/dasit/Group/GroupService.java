@@ -11,7 +11,8 @@ public class GroupService {
 	@Autowired
 	private GroupRepository groupRepository;
 	
-	public Group save(Group g) {
+	public Group save(Group g) throws Exception {
+		g.validateRecord();
 		groupRepository.save(g);
 		return g;
 	}

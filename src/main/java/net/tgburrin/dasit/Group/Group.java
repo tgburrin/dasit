@@ -2,12 +2,17 @@ package net.tgburrin.dasit.Group;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.tgburrin.dasit.InvalidDataException;
+import net.tgburrin.dasit.Dataset.Dataset;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 
 enum GroupStatus {
@@ -21,13 +26,8 @@ public class Group {
 	@Id
 	private Long id;
 	
-	@Column(value = "name")
 	private String name;
-
-	@Column(value = "email")
-	private String emailAddress;
-	
-	@Column(value = "status")
+	private String email;
 	private GroupStatus status;
 
 	Group() {
@@ -38,7 +38,7 @@ public class Group {
 	Group(Long id, String name, String email) {
 		this.id = id;
 		this.name = name;
-		this.emailAddress = email;
+		this.email = email;
 		this.status = GroupStatus.ACTIVE;
 	}
 
@@ -55,22 +55,25 @@ public class Group {
 
 	@JsonProperty("email_address")
 	public String getEmailAddress() {
-		return this.emailAddress;
+		return this.email;
 	}
 	@JsonProperty("email_address")
 	public void setEmailAddress(String ea) {
-		this.emailAddress = ea;
+		this.email = ea;
 	}
 
 	public String getStatus() {
 		return this.status.toString();
 	}
+
 	public void setStatus(String s) {
 		this.status = GroupStatus.valueOf(s);
 	}
+
 	public void setInactive() {
 		this.status = GroupStatus.INACTIVE;
 	}
+
 	public void setActive() {
 		this.status = GroupStatus.ACTIVE;
 	}
@@ -79,14 +82,17 @@ public class Group {
 		List<String> s = new ArrayList<String>();
 		s.add("Id: "+this.id);
 		s.add("Name: "+this.name);
-		s.add("Email: "+this.emailAddress);
+		s.add("Email: "+this.email);
 		s.add("Status: "+this.status);
 		
 		return String.join("\n", s);
 	}
 
-	public void validateRecord() throws Exception {
-		if(!Pattern.matches(".*@.*.\\.*", this.emailAddress))
-			throw new Exception("An invalid email address was used");
+	public void validateRecord() throws InvalidDataException {
+		if(this.name == null || this.name.equals(""))
+			throw new InvalidDataException("A valid group name must be specified");
+
+		if(!Pattern.matches(".*@.*.\\.*", this.email))
+			throw new InvalidDataException("An invalid email address was used");
 	}
 }
