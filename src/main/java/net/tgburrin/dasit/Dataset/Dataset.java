@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.util.Assert;
 
@@ -26,60 +26,78 @@ public class Dataset {
 	private Long id;
 
 	private String name;
-	@MappedCollection(idColumn = "id", keyColumn = "owner_group")
-	//@Column("owner_group")
+
+	@Column("owner_group")
+	private Long ownerGroupId;
+
+	//@MappedCollection(idColumn = "id", keyColumn = "owner_group")
+	@Transient
 	private Group ownerGroup;
+
 	private DatasetStatus status;
 
 	Dataset () {
 		this.id = null;
-		this.ownerGroup = null;
+		this.ownerGroupId = null;
 		this.status = DatasetStatus.ACTIVE;
 	}
-	
+
 	Dataset (String dsName, Group owner) {
 		this.id = null;
 		this.status = DatasetStatus.ACTIVE;
 
 		this.name = dsName;
-		this.ownerGroup = owner;
+		this.setGroupId(owner);
 	}
 
-	public long getId() {
+	public long readId() {
 		return id;
+	}
+
+	protected void setId(Long i) {
+		this.id = i;
 	}
 
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String n) {
 		name = n;
 	}
-	
+
+	public Long readGroupId() {
+		return this.ownerGroupId;
+	}
+
 	public Group getGroup() {
 		return ownerGroup;
 	}
-	
-	public void addGroup(Group g) {
+
+	public void setGroupId(Group g) {
 		Assert.notNull(g, "Owner Group must not be null");
-		Assert.notNull(g.getId(), "The Owner Group must be a populated object");
-		
-		ownerGroup = g;
+		Assert.notNull(g.readId(), "The Owner Group must be a populated object");
+
+		this.ownerGroup = g;
+		this.ownerGroupId = g.readId();
 	}
-	
+
 	public DatasetStatus getStatus() {
 		return this.status;
 	}
 
+	public void setStatus(String s) {
+		this.status = DatasetStatus.valueOf(s);
+	}
+
+	@Override
 	public String toString() {
 		List<String> s = new ArrayList<String>();
 		s.add("Id: "+this.id);
 		s.add("Name: "+this.name);
-		s.add("Owner: "+this.ownerGroup.getName());
-		s.add("Owner Id: "+this.ownerGroup.getId());
+		s.add("Owner Id: "+this.ownerGroupId);
 		s.add("Status: "+this.status);
-		
+
 		return String.join("\n", s);
 	}
 

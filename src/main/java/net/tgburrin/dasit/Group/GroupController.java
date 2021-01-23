@@ -4,23 +4,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.tgburrin.dasit.InvalidDataException;
-
-import org.springframework.ui.Model;
-
 @RestController
 @RequestMapping("/groups")
 public class GroupController {
-	
+
 	@Autowired
 	private GroupService groupService;
 
@@ -36,8 +32,13 @@ public class GroupController {
 		return groupService.findAll();
 	}
 
-	@RequestMapping(value="/group/{name}", method=RequestMethod.GET)
-	public Group getGroup(String name, Model m) throws Exception {
+	@RequestMapping(value="/by_name/{name}", method=RequestMethod.GET)
+	public Group getGroupByName(@PathVariable("name") String name, Model m) throws Exception {
 		return groupService.findByName(name);
+	}
+
+	@RequestMapping(value="/by_id/{id}", method=RequestMethod.GET)
+	public Group getGroupById(@PathVariable("id") Long id, Model m) throws Exception {
+		return groupService.findById(id);
 	}
 }

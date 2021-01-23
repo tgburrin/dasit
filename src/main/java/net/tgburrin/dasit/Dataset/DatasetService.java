@@ -6,8 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.tgburrin.dasit.Group.Group;
-
 @Service
 public class DatasetService {
 	@Autowired
@@ -22,5 +20,9 @@ public class DatasetService {
 		List<Dataset> dsList = new ArrayList<Dataset>();
 		dsRepo.findAll().forEach(dsList::add);
 		return dsList;
+	}
+
+	public Dataset findByName(String n) {
+		return dsRepo.findByName(n);
 	}
 }

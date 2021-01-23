@@ -14,22 +14,29 @@ import org.springframework.transaction.TransactionManager;
 //import net.tgburrin.dasit.Group.GroupStatus;
 
 class ApplicationConfig extends AbstractJdbcConfiguration {
-    @Bean
-    public DataSource dataSource() throws IOException {                                                   
-    	return AppDataSource.getDasitDataSource();
-    }
+	@Bean
+	public DataSource dataSource() throws IOException {
+		return AppDataSource.getDasitDataSource();
+	}
 
-    @Bean
-    NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) { 
-        return new NamedParameterJdbcTemplate(dataSource);
-    }
+	@Bean
+	NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) {
+		return new NamedParameterJdbcTemplate(dataSource);
+	}
 
-    @Bean
-    TransactionManager transactionManager(DataSource dataSource) {                     
-        return new DataSourceTransactionManager(dataSource);
-    }
+	@Bean
+	TransactionManager transactionManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
+	}
 
-    /*
+	/*
+	@Bean
+	QueryMappingConfiguration rowMappers() {
+		return new DefaultQueryMappingConfiguration()
+				.registerRowMapper(Dataset.class, new DatasetRowMapper());
+	}
+	 */
+	/*
     @Override
     public JdbcCustomConversions jdbcCustomConversions() {
 
@@ -40,11 +47,11 @@ class ApplicationConfig extends AbstractJdbcConfiguration {
     @WritingConverter
     enum GroupStatusToCharConverter implements Converter<GroupStatus, String> {
     	INSTANCE;
-    	
+
     	@Override
     	public String convert(GroupStatus src) {
     		return src.toString();
     	}
     }
-    */
+	 */
 }

@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS dasit.datasets (
 	status text NOT NULL
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_datasets_name_owner on dasit.datasets(name, owner_group);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_datasets_name on dasit.datasets(name);
 
 CREATE TABLE IF NOT EXISTS dasit.datasets_published (
 	dataset_id bigint not null REFERENCES dasit.datasets(id),

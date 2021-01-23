@@ -1,19 +1,15 @@
 package net.tgburrin.dasit.Group;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.tgburrin.dasit.InvalidDataException;
-import net.tgburrin.dasit.Dataset.Dataset;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.tgburrin.dasit.InvalidDataException;
 
 enum GroupStatus {
 	ACTIVE,
@@ -25,7 +21,7 @@ enum GroupStatus {
 public class Group {
 	@Id
 	private Long id;
-	
+
 	private String name;
 	private String email;
 	private GroupStatus status;
@@ -34,7 +30,7 @@ public class Group {
 		this.id = null;
 		this.status = GroupStatus.ACTIVE;
 	}
-	
+
 	Group(Long id, String name, String email) {
 		this.id = id;
 		this.name = name;
@@ -42,7 +38,7 @@ public class Group {
 		this.status = GroupStatus.ACTIVE;
 	}
 
-	public long getId() {
+	public long readId() {
 		return this.id;
 	}
 
@@ -77,14 +73,15 @@ public class Group {
 	public void setActive() {
 		this.status = GroupStatus.ACTIVE;
 	}
-	
+
+	@Override
 	public String toString() {
 		List<String> s = new ArrayList<String>();
 		s.add("Id: "+this.id);
 		s.add("Name: "+this.name);
 		s.add("Email: "+this.email);
 		s.add("Status: "+this.status);
-		
+
 		return String.join("\n", s);
 	}
 
