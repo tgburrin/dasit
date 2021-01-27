@@ -112,6 +112,20 @@ BEGIN
 		sd := start_rec.publish_start_dt;
 	END IF;
 
+	/* Our starting window is now the ending of another window */
+	select
+		*
+	into start_rec
+	from
+		dasit.datasets_published dp
+	WHERE
+		dp.dataset_id = dsid AND
+		dp.publish_end_dt = sd
+	;
+	IF FOUND THEN
+		sd := start_rec.publish_start_dt;
+	END IF;
+
 	/* Intersects on the upper bound */
 	select
 		*
@@ -122,6 +136,20 @@ BEGIN
 		dp.dataset_id = dsid AND
 		dp.publish_start_dt < ed AND
 		dp.publish_end_dt >= ed
+	;
+	IF FOUND THEN
+		ed := end_rec.publish_end_dt;
+	END IF;
+
+	/* Our ending window is now the start of another window */
+	select
+		*
+	into end_rec
+	from
+		dasit.datasets_published dp
+	WHERE
+		dp.dataset_id = dsid AND
+		dp.publish_start_dt = ed
 	;
 	IF FOUND THEN
 		ed := end_rec.publish_end_dt;
