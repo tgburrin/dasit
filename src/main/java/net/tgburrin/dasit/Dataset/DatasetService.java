@@ -25,4 +25,9 @@ public class DatasetService {
 	public Dataset findByName(String n) {
 		return dsRepo.findByName(n);
 	}
+
+	public List<DatasetWindow> findWindowsByName(String n) {
+		//System.out.println("Finding windows for "+n);
+		return dsRepo.findWindowsByName(n);
+	}
 }

@@ -30,7 +30,11 @@ public class Dataset {
 	@Column("owner_group")
 	private Long ownerGroupId;
 
-	//@MappedCollection(idColumn = "id", keyColumn = "owner_group")
+	/*
+	@MappedCollection(idColumn = "dataset_id", keyColumn = "id")
+	private Set<DatasetWindow> dsWindow;
+	 */
+
 	@Transient
 	private Group ownerGroup;
 
