@@ -1,6 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS dasit;
 CREATE TABLE IF NOT EXISTS dasit.groups (
 	id bigserial NOT NULL PRIMARY KEY,
+	created timestamptz not null,
+	updated timestamptz not null,
 	name text NOT NULL,
 	email text NOT NULL,
 	status text NOT NULL
@@ -9,6 +11,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_groups_name on dasit.groups(name);
 
 CREATE TABLE IF NOT EXISTS dasit.datasets (
 	id bigserial NOT NULL PRIMARY KEY,
+	created timestamptz not null,
+	updated timestamptz not null,
 	name text NOT NULL,
 	owner_group bigint NOT NULL REFERENCES dasit.groups(id),
 	status text NOT NULL
@@ -18,6 +22,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_datasets_name on dasit.datasets(name);
 
 CREATE TABLE IF NOT EXISTS dasit.datasets_published (
 	dataset_id bigint not null REFERENCES dasit.datasets(id),
+	created timestamptz not null,
 	publish_start_dt timestamptz not null,
 	publish_end_dt timestamptz not null,
 	publish_range tstzrange not null,
@@ -27,7 +32,82 @@ CREATE TABLE IF NOT EXISTS dasit.datasets_published (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_datasets_published_id_end_dt on dasit.datasets_published(dataset_id, publish_end_dt);
 
-CREATE OR REPLACE FUNCTION dasit.merge_dataset_published_trg() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION dasit.set_timestatmps_trg()
+RETURNS TRIGGER
+AS $$
+BEGIN
+	IF TG_WHEN = 'BEFORE' THEN
+
+		IF TG_OP = 'INSERT' THEN
+			perform 1
+			from information_schema.columns
+			where table_schema = TG_TABLE_SCHEMA and
+			table_name = TG_TABLE_NAME and
+			column_name = 'created';
+			IF FOUND THEN
+				NEW.created := clock_timestamp();
+			END IF;
+
+			perform 1
+			from information_schema.columns
+			where table_schema = TG_TABLE_SCHEMA and
+			table_name = TG_TABLE_NAME and
+			column_name = 'updated';
+
+			IF FOUND THEN
+				NEW.updated := clock_timestamp();
+			END IF;
+		END IF;
+
+		IF TG_OP = 'UPDATE' THEN
+			perform 1
+			from information_schema.columns
+			where table_schema = TG_TABLE_SCHEMA and
+			table_name = TG_TABLE_NAME and
+			column_name = 'updated';
+
+			IF FOUND THEN
+				NEW.updated := clock_timestamp();
+			END IF;
+		END IF;
+	
+		IF TG_OP = 'DELETE' THEN
+			RETURN OLD;
+		ELSE
+			RETURN NEW;
+		END IF;
+	ELSIF TG_WHEN = 'AFTER' THEN
+		RETURN NULL;
+	ELSE
+		RAISE EXCEPTION 'Unhandled trigger lifecycle % in %.% on %.%', TG_OP, TG_WHEN, TG_NAME, TG_TABLE_SCHEMA, TG_TABLE_NAME;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS FF_groups_timestamps on dasit.groups;
+CREATE TRIGGER FF_groups_timestamps
+BEFORE INSERT OR UPDATE OR DELETE
+ON dasit.groups
+FOR EACH ROW
+EXECUTE PROCEDURE dasit.set_timestatmps_trg();
+
+DROP TRIGGER IF EXISTS FF_datasets_timestamps on dasit.datasets;
+CREATE TRIGGER FF_datasets_timestamps
+BEFORE INSERT OR UPDATE OR DELETE
+ON dasit.datasets
+FOR EACH ROW
+EXECUTE PROCEDURE dasit.set_timestatmps_trg();
+
+DROP TRIGGER IF EXISTS FF_datasets_published_timestamps on dasit.datasets_published;
+CREATE TRIGGER FF_datasets_published_timestamps
+BEFORE INSERT OR UPDATE OR DELETE
+ON dasit.datasets_published
+FOR EACH ROW
+EXECUTE PROCEDURE dasit.set_timestatmps_trg();
+
+CREATE OR REPLACE FUNCTION dasit.merge_dataset_published_trg()
+RETURNS TRIGGER
+AS $$
 DECLARE
 	rows bigint;
 BEGIN
@@ -63,10 +143,10 @@ BEGIN
 		RAISE NOTICE 'OLD %', OLD;
 		*/
 
-		IF NEW.dataset_id is not null THEN
-			RETURN NEW;
-		ELSE
+		IF TG_OP = 'DELETE' THEN
 			RETURN OLD;
+		ELSE
+			RETURN NEW;
 		END IF;
 	ELSIF TG_WHEN = 'AFTER' THEN
 		RETURN NULL;
@@ -84,13 +164,15 @@ FOR EACH ROW
 EXECUTE PROCEDURE dasit.merge_dataset_published_trg();
 
 DROP TRIGGER IF EXISTS MN_merge_dataset_published on dasit.datasets_published;
-CREATE TRIGGER MM_merge_dataset_published
+CREATE TRIGGER MN_merge_dataset_published
 AFTER INSERT OR UPDATE OR DELETE
 ON dasit.datasets_published
 FOR EACH ROW
 EXECUTE PROCEDURE dasit.merge_dataset_published_trg();
 
-CREATE OR REPLACE FUNCTION dasit.add_published_window(dsid bigint, sd timestamptz, ed timestamptz) RETURNS void AS $$
+CREATE OR REPLACE FUNCTION dasit.add_published_window(dsid bigint, sd timestamptz, ed timestamptz)
+RETURNS void
+AS $$
 DECLARE
 	cnt bigint;
 	start_rec dasit.datasets_published;
@@ -109,6 +191,7 @@ BEGIN
 		dp.publish_end_dt > sd
 	;
 	IF FOUND THEN
+		-- sd -> start_rec.publish_end_dt ->  would be part of a window being re-published near the start
 		sd := start_rec.publish_start_dt;
 	END IF;
 
@@ -138,6 +221,7 @@ BEGIN
 		dp.publish_end_dt >= ed
 	;
 	IF FOUND THEN
+		-- end_rec.publish_start_dt -> ed would be a part of a window being re-published near the end
 		ed := end_rec.publish_end_dt;
 	END IF;
 
@@ -159,6 +243,7 @@ BEGIN
 
 	/* This could be done better to identify a delete and an update for existing ranges */
 	/* an update with identical details would be a noop */
+	-- records matching published_range <@ range would be those being completely re-publised 
 	delete from dasit.datasets_published dp
 	where dp.dataset_id = dsid and dp.publish_range && range;
 
@@ -167,27 +252,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION dasit.check_published_window(dsid bigint, sd timestamptz, ed timestamptz) RETURNS bool AS $$
+CREATE OR REPLACE FUNCTION dasit.check_published_window(dsid bigint, sd timestamptz, ed timestamptz)
+RETURNS SETOF dasit.datasets_published
+AS $$
 DECLARE
-	cnt bigint;
 	range tstzrange;
-	rv bool;
 BEGIN
-	rv := 'f';
-
 	range := '['||sd||','||ed||')';
-	perform
-		1
+
+	sd := null;
+	ed := null;
+
+	return query
+	select
+		*
 	from
 		dasit.datasets_published dp
 	where
 		dp.dataset_id = dsid
 	and dp.publish_range @> range;
-	IF FOUND THEN
-		rv := 't';
-	END IF;
-
-	return rv;
 END;
 $$ LANGUAGE plpgsql;
 

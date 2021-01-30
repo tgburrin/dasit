@@ -13,7 +13,7 @@ public class DatasetWindowCallbacks implements AfterLoadCallback<DatasetWindow> 
 
 	@Override
 	public DatasetWindow onAfterLoad(DatasetWindow d) {
-		Optional<Dataset> dataSet = dr.findById(d.datasetid);
+		Optional<Dataset> dataSet = dr.findById(d.datasetId);
 		d.datasetName = dataSet.get().getName();
 		return d;
 	}

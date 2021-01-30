@@ -1,5 +1,6 @@
 package net.tgburrin.dasit.Dataset;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.data.jdbc.repository.query.Query;
@@ -12,4 +13,7 @@ public interface DatasetRepository extends CrudRepository<Dataset, Long> {
 
 	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.datasets d join dasit.datasets_published p on d.id = p.dataset_id where d.name=:name order by p.publish_start_dt")
 	List<DatasetWindow> findWindowsByName(@Param("name") String name);
+
+	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.check_published_window(:datasetId, :startDt, :endDt) p")
+	DatasetWindow checkWindowExists(@Param("datasetId") Long datasetId, @Param("startDt") Timestamp startDt, @Param("endDt") Timestamp endDt);
 }

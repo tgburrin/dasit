@@ -5,12 +5,12 @@ import java.util.Properties;
 
 import javax.sql.DataSource;
 
-import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariConfig;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
 public class AppDataSource {
@@ -21,7 +21,7 @@ public class AppDataSource {
 		} else {
 			Properties p = new Properties();
 			p.load(AppDataSource.class.getResourceAsStream("/application.properties"));
-			dbProperties = p.getProperty("dasit.dbconfig", "/database.properties");				
+			dbProperties = p.getProperty("dasit.dbconfig", "/database.properties");
 		}
 		return dbProperties;
 	}
