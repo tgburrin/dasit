@@ -170,8 +170,30 @@ ON dasit.datasets_published
 FOR EACH ROW
 EXECUTE PROCEDURE dasit.merge_dataset_published_trg();
 
+CREATE OR REPLACE FUNCTION dasit.check_published_window(dsid bigint, sd timestamptz, ed timestamptz)
+RETURNS SETOF dasit.datasets_published
+AS $$
+DECLARE
+	range tstzrange;
+BEGIN
+	range := '['||sd||','||ed||')';
+
+	sd := null;
+	ed := null;
+
+	return query
+	select
+		*
+	from
+		dasit.datasets_published dp
+	where
+		dp.dataset_id = dsid
+	and dp.publish_range @> range;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION dasit.add_published_window(dsid bigint, sd timestamptz, ed timestamptz)
-RETURNS void
+RETURNS SETOF dasit.datasets_published
 AS $$
 DECLARE
 	cnt bigint;
@@ -179,6 +201,15 @@ DECLARE
 	end_rec   dasit.datasets_published;
 	range tstzrange;
 BEGIN
+	-- Noop if the window already exists
+	select * into start_rec from dasit.check_published_window(dsid, sd, ed);
+	IF FOUND THEN
+		return next start_rec;
+		return;
+	END IF;
+
+	start_rec := null;
+
 	/* Intersects on the lower bound */
 	select
 		*
@@ -247,89 +278,79 @@ BEGIN
 	delete from dasit.datasets_published dp
 	where dp.dataset_id = dsid and dp.publish_range && range;
 
-	insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
-	values (dsid, sd, ed);
+	return query
+	with ins as (
+		insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
+		values (dsid, sd, ed) returning *
+	) select * from ins;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION dasit.check_published_window(dsid bigint, sd timestamptz, ed timestamptz)
+CREATE OR REPLACE FUNCTION dasit.remove_published_window(dsid bigint, sd timestamptz, ed timestamptz)
 RETURNS SETOF dasit.datasets_published
 AS $$
 DECLARE
+	rec dasit.datasets_published;
 	range tstzrange;
 BEGIN
 	range := '['||sd||','||ed||')';
+	-- RAISE NOTICE 'Range is %', range;
 
-	sd := null;
-	ed := null;
+	-- Noop if the window already does not exist
+	perform 1 from dasit.datasets_published dp where dp.publish_range && range;
+	IF NOT FOUND THEN
+		return query
+		select *
+		from dasit.datasets_published dp
+		where dp.dataset_id = dsid and dp.publish_range -|- range
+		order by dp.publish_start_dt;
+		RETURN;
+	END IF;
 
-	return query
-	select
-		*
-	from
-		dasit.datasets_published dp
-	where
-		dp.dataset_id = dsid
-	and dp.publish_range @> range;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION dasit.remove_published_window(dsid bigint, sd timestamptz, ed timestamptz) RETURNS void AS $$
-DECLARE
-	cnt bigint;
-	start_rec dasit.datasets_published;
-	end_rec   dasit.datasets_published;
-	range tstzrange;
-BEGIN
-	range := '['||sd||','||ed||')';
-
+	-- Remove records entirely encompassed by this range
 	delete from dasit.datasets_published dp
 	where dp.dataset_id = dsid and dp.publish_range <@ range;
 
-	/* Intersects on the lower bound */
-	select
-		*
-	into start_rec
-	from
-		dasit.datasets_published dp
-	WHERE
-		dp.dataset_id = dsid AND
-		dp.publish_start_dt <= sd AND
-		dp.publish_end_dt > sd
-	;
+    select * into rec from dasit.datasets_published dp
+    where dp.dataset_id = dsid and dp.publish_range @> range;
+	IF FOUND THEN
+		-- This is a window split
 
-	/* Intersects on the upper bound */
-	select
-		*
-	into end_rec
-	from
-		dasit.datasets_published dp
-	WHERE
-		dp.dataset_id = dsid AND
-		dp.publish_start_dt < ed AND
-		dp.publish_end_dt >= ed
-	;
-
-	IF start_rec is not null and start_rec.publish_range @> range THEN
-		/* start_rec and end_rec should be the same */
-		update dasit.datasets_published set
+		UPDATE dasit.datasets_published dp set
 			publish_end_dt = sd
-		where dataset_id = dsid AND publish_start_dt = start_rec.publish_start_dt;
+		where
+			dp.dataset_id = dsid
+		and dp.publish_start_dt = rec.publish_start_dt;
 
 		insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
-		values (dsid, ed, start_rec.publish_end_dt);
+		values (dsid, ed, rec.publish_end_dt);
 	ELSE
-		IF start_rec is not null THEN
-			update dasit.datasets_published set
-				publish_end_dt = sd
-			where dataset_id = dsid AND publish_start_dt = start_rec.publish_start_dt;
-		END IF;
+		-- These are one or more intersecting windows on the upper and lower bounds
 
-		IF end_rec is not null THEN
-			update dasit.datasets_published set
-				publish_start_dt = ed
-			where dataset_id = dsid AND publish_start_dt = end_rec.publish_start_dt;
-		END IF;
+		FOR rec in select * from dasit.datasets_published dp where dp.publish_range && range order by dp.publish_start_dt
+		LOOP
+			IF sd >= rec.publish_start_dt and sd < rec.publish_end_dt THEN
+				-- RAISE NOTICE 'Amending % for upper bound %', rec, sd;
+				UPDATE dasit.datasets_published dp set
+					publish_end_dt = sd
+				where
+					dp.dataset_id = dsid
+				and dp.publish_start_dt = rec.publish_start_dt;
+			ELSIF ed > rec.publish_start_dt and ed <= rec.publish_end_dt THEN
+				-- RAISE NOTICE 'Amending % for lower bound %', rec, ed;
+				UPDATE dasit.datasets_published dp set
+					publish_start_dt = ed
+				where
+					dp.dataset_id = dsid
+				and dp.publish_end_dt = rec.publish_end_dt;
+			END IF;
+		END LOOP;
 	END IF;
+
+	return query
+	select *
+	from dasit.datasets_published dp
+	where dp.dataset_id = dsid and dp.publish_range -|- range
+	order by dp.publish_start_dt;
 END;
 $$ LANGUAGE plpgsql;

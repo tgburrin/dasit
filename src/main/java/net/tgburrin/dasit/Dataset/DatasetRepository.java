@@ -16,4 +16,10 @@ public interface DatasetRepository extends CrudRepository<Dataset, Long> {
 
 	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.check_published_window(:datasetId, :startDt, :endDt) p")
 	DatasetWindow checkWindowExists(@Param("datasetId") Long datasetId, @Param("startDt") Timestamp startDt, @Param("endDt") Timestamp endDt);
+
+	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.add_published_window(:datasetId, :startDt, :endDt) p")
+	DatasetWindow addPublishedWindow(@Param("datasetId") Long datasetId, @Param("startDt") Timestamp startDt, @Param("endDt") Timestamp endDt);
+
+	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.remove_published_window(:datasetId, :startDt, :endDt) p")
+	List<DatasetWindow> removePublishedWindow(@Param("datasetId") Long datasetId, @Param("startDt") Timestamp startDt, @Param("endDt") Timestamp endDt);
 }

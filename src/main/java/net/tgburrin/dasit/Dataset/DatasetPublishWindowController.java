@@ -29,4 +29,16 @@ public class DatasetPublishWindowController {
 	public DatasetWindow checkWindow(@RequestBody DatasetWindow dsc) throws Exception {
 		return datasetService.checkWindowExists(dsc);
 	}
+
+	@PostMapping(value="/publish_window", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK)
+	public DatasetWindow addWindow(@RequestBody DatasetWindow dsc) throws Exception {
+		return datasetService.addPublishedWindow(dsc);
+	}
+
+	@PostMapping(value="/remove_window", consumes = "application/json", produces = "application/json")
+	@ResponseStatus(HttpStatus.OK)
+	public List<DatasetWindow> removeWindow(@RequestBody DatasetWindow dsc) throws Exception {
+		return datasetService.removePublishedWindow(dsc);
+	}
 }

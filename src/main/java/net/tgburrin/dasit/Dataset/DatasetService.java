@@ -45,4 +45,17 @@ public class DatasetService {
 		return found;
 	}
 
+	public DatasetWindow addPublishedWindow(DatasetWindow dsw) {
+		Dataset d = dsRepo.findByName(dsw.datasetName);
+		return dsRepo.addPublishedWindow(d.readId(),
+				Timestamp.from(dsw.getWindowStartDateTime()),
+				Timestamp.from(dsw.getWindowEndDateTime()));
+	}
+
+	public List<DatasetWindow> removePublishedWindow(DatasetWindow dsw) {
+		Dataset d = dsRepo.findByName(dsw.datasetName);
+		return dsRepo.removePublishedWindow(d.readId(),
+				Timestamp.from(dsw.getWindowStartDateTime()),
+				Timestamp.from(dsw.getWindowEndDateTime()));
+	}
 }
