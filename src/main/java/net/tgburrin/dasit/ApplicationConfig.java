@@ -1,7 +1,5 @@
 package net.tgburrin.dasit;
 
-import java.io.IOException;
-
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -14,11 +12,6 @@ import org.springframework.transaction.TransactionManager;
 //import net.tgburrin.dasit.Group.GroupStatus;
 
 class ApplicationConfig extends AbstractJdbcConfiguration {
-	@Bean
-	public DataSource dataSource() throws IOException {
-		return AppDataSource.getDasitDataSource();
-	}
-
 	@Bean
 	NamedParameterJdbcOperations namedParameterJdbcOperations(DataSource dataSource) {
 		return new NamedParameterJdbcTemplate(dataSource);

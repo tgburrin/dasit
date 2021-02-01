@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-dependencies:2.2.4.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-dependencies:2.3.8.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	implementation 'org.springframework.boot:spring-boot-starter'
