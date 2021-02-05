@@ -15,4 +15,10 @@ public class GroupServiceTest extends BaseIntegrationTest {
 	public void contextLoads() throws Exception {
 		assertThat(groupService).isNotNull();
 	}
+
+	@Test
+	public void saveTestGroup() throws Exception {
+		//Group g = new Group();
+		//groupService.save(g);
+	}
 }
