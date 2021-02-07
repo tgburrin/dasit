@@ -26,12 +26,12 @@ public class Group {
 	private String email;
 	private GroupStatus status;
 
-	Group() {
+	public Group() {
 		this.id = null;
 		this.status = GroupStatus.ACTIVE;
 	}
 
-	Group(Long id, String name, String email) {
+	public Group(Long id, String name, String email) {
 		this.id = id;
 		this.name = name;
 		this.email = email;

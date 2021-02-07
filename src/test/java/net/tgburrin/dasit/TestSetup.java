@@ -10,58 +10,73 @@ import java.sql.Statement;
 
 import javax.sql.DataSource;
 
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-public class TestSetup implements BeforeAllCallback, ExtensionContext.Store.CloseableResource {
-    private static boolean started = false;
+public class TestSetup implements BeforeAllCallback, AfterAllCallback, ExtensionContext.Store.CloseableResource {
+	private static boolean started = false;
 
-    private DataSource dataSource;
-    //https://stackoverflow.com/questions/56904620/junit-5-inject-spring-components-to-extension-beforeallcallback-afterallcall/62504238#62504238
+	private DataSource dataSource;
+	//https://stackoverflow.com/questions/56904620/junit-5-inject-spring-components-to-extension-beforeallcallback-afterallcall/62504238#62504238
 
-    @SuppressWarnings("resource")
+	@SuppressWarnings("resource")
 	protected static String getDatabaseSetup() throws SQLException, IOException, URISyntaxException {
 		return new String(Files.readAllBytes(Paths.get(App.class.getResource("/schema.sql").toURI())));
 	}
 
-    public void buildDatabase() throws SQLException, IOException, URISyntaxException {
-    	try (Connection conn = dataSource.getConnection()) {
-    		Statement stmt = conn.createStatement();
-    		stmt.executeUpdate(getDatabaseSetup());
-    		stmt.close();
-    		conn.close();
-    	}
-    }
+	@SuppressWarnings("resource")
+	protected static String loadTestData() throws SQLException, IOException, URISyntaxException {
+		return new String(Files.readAllBytes(Paths.get(App.class.getResource("/test-data.sql").toURI())));
+	}
 
-    @Override
-    public void beforeAll(ExtensionContext context) throws SQLException, IOException, URISyntaxException {
-        synchronized (TestSetup.class) {
-            if (!started) {
-            	started = true;
-            	// Your "before all tests" startup logic goes here
+	public void buildDatabase() throws SQLException, IOException, URISyntaxException {
+		try (Connection conn = dataSource.getConnection()) {
+			Statement stmt = conn.createStatement();
+			stmt.execute(getDatabaseSetup());
+			System.out.println("Loadin test data:\n"+loadTestData());
+			stmt.execute(loadTestData());
+			stmt.close();
+			conn.close();
+		}
+	}
 
-            	ApplicationContext springContext = SpringExtension.getApplicationContext(context);
-            	dataSource = springContext.getBean(DataSource.class);
+	@Override
+	public void beforeAll(ExtensionContext context) throws SQLException, IOException, URISyntaxException {
+		synchronized (TestSetup.class) {
+			if (!started) {
+				started = true;
+				// Your "before all tests" startup logic goes here
 
-            	buildDatabase();
+				ApplicationContext springContext = SpringExtension.getApplicationContext(context);
+				dataSource = springContext.getBean(DataSource.class);
 
-            	// The following line registers a callback hook when the root test context is shut down
-            	context.getRoot().getStore(ExtensionContext.Namespace.GLOBAL).put("TestDataSetup-started", this);
-            }
-        }
-    }
+				buildDatabase();
 
-    @Override
-    public void close() throws SQLException {
-    	synchronized (TestSetup.class) {
-        	try (Connection conn = dataSource.getConnection()) {
-        		Statement stmt = conn.createStatement();
-        		stmt.executeUpdate("drop schema dasit cascade");
-        		stmt.close();
-        		conn.close();
-        	}
-    	}
-    }
+				// The following line registers a callback hook when the root test context is shut down
+				context.getRoot().getStore(ExtensionContext.Namespace.GLOBAL).put("TestDataSetup-started", this);
+			}
+		}
+	}
+
+	@Override
+	public void afterAll(ExtensionContext context) throws SQLException {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void close() throws Throwable {
+		synchronized (TestSetup.class) {
+			if (started == true) {
+				try (Connection conn = dataSource.getConnection()) {
+					Statement stmt = conn.createStatement();
+					stmt.executeUpdate("drop schema dasit cascade");
+					stmt.close();
+					conn.close();
+				}
+			}
+		}
+	}
 }
