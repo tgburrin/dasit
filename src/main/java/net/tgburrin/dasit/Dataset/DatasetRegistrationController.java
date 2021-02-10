@@ -37,7 +37,7 @@ public class DatasetRegistrationController {
 	}
 
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	public List<Dataset> listGroups() throws Exception {
+	public List<Dataset> listDatasets() throws Exception {
 		return datasetService.findAll();
 	}
 

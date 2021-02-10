@@ -24,7 +24,7 @@ public class GroupService {
 
 	public List<Group> findAll() {
 		List<Group> groups = new ArrayList<Group>();
-		groupRepository.findAll().forEach(groups::add);
+		groupRepository.findAllActive().forEach(groups::add);
 		return groups;
 	}
 

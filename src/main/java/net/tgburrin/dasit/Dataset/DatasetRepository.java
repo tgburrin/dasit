@@ -8,6 +8,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 public interface DatasetRepository extends CrudRepository<Dataset, Long> {
+	@Query("select * from dasit.datasets where status='ACTIVE'")
+	List<Dataset> findAllActive();
+
 	@Query("select id, name, owner_group, status from dasit.datasets where name=:name")
 	Dataset findByName(@Param("name") String name);
 
