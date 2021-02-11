@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+    dasit-db:
+        image: dasit-postgresql
+        volumes:
+            - dasit-db-data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_PASSWORD=s3cretPassw0rd
+    dasit-app:
+        image: dasit-app
+        volumes:
+            - ../:/opt
+        ports:
+            - "8080:8080"
+volumes:
+    dasit-db-data:
+networks:
+    dasit-net:

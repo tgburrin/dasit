@@ -89,6 +89,9 @@ public class Group {
 		if(this.name == null || this.name.equals(""))
 			throw new InvalidDataException("A valid group name must be specified");
 
+		if(this.email == null)
+			throw new InvalidDataException("An email must be provided");
+
 		if(!Pattern.matches(".*@.*.\\.*", this.email))
 			throw new InvalidDataException("An invalid email address was used");
 	}

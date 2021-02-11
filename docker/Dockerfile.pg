@@ -1,0 +1,6 @@
+FROM postgres:11-alpine
+
+ENV POSTGRES_INITDB_ARGS="-E UTF8"
+
+COPY docker/create_database.sql /docker-entrypoint-initdb.d/
+COPY src/main/resources/schema.sql /tmp/
