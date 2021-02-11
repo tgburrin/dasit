@@ -21,7 +21,7 @@ public class DatasetService {
 
 	public List<Dataset> findAll() {
 		List<Dataset> dsList = new ArrayList<Dataset>();
-		dsRepo.findAll().forEach(dsList::add);
+		dsRepo.findAllActive().forEach(dsList::add);
 		return dsList;
 	}
 

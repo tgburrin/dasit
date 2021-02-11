@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.tgburrin.dasit.InvalidDataException;
+import net.tgburrin.dasit.NoRecordFoundException;
 import net.tgburrin.dasit.Group.Group;
 import net.tgburrin.dasit.Group.GroupService;
 
@@ -28,7 +29,7 @@ public class DatasetRegistrationController {
 
 	@PostMapping(value="/create", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Dataset createDataset(@RequestBody DatasetCreateRequest dsReq) throws InvalidDataException {
+	public Dataset createDataset(@RequestBody DatasetCreateRequest dsReq) throws InvalidDataException, NoRecordFoundException {
 		Group g = grpService.findByName(dsReq.ownerGroupName);
 		Dataset d = new Dataset(dsReq.datasetName, g);
 		d.validateRecord();
@@ -37,7 +38,7 @@ public class DatasetRegistrationController {
 	}
 
 	@RequestMapping(value="/list", method=RequestMethod.GET)
-	public List<Dataset> listGroups() throws Exception {
+	public List<Dataset> listDatasets() throws Exception {
 		return datasetService.findAll();
 	}
 

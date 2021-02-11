@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.tgburrin.dasit.NoRecordFoundException;
+
 @Service
 public class GroupService {
 	@Autowired
@@ -18,13 +20,17 @@ public class GroupService {
 		return g;
 	}
 
-	public Group findByName(String name) {
-		return groupRepository.findByName(name);
+	public Group findByName(String name) throws NoRecordFoundException {
+		Group g = groupRepository.findByName(name);
+		if ( g == null )
+			throw new NoRecordFoundException("Group '"+name+"' not found");
+
+		return g;
 	}
 
 	public List<Group> findAll() {
 		List<Group> groups = new ArrayList<Group>();
-		groupRepository.findAll().forEach(groups::add);
+		groupRepository.findAllActive().forEach(groups::add);
 		return groups;
 	}
 

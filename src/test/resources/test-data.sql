@@ -3,7 +3,9 @@ select setval('dasit.datasets_id_seq', 100);
 
 insert into dasit.groups (id, name, email, status)
 values
-(1, 'testgroup1', 'testgroup@email.com', 'ACTIVE');
+(1, 'testgroup1', 'testgroup@email.com', 'ACTIVE'),
+(2, 'testgroup2', 'testgroup@email.com', 'ACTIVE'),
+(3, 'testgroup3', 'deprecatedgroup@email.com', 'ACTIVE');
 
 insert into dasit.datasets (id, name, owner_group, status)
 values

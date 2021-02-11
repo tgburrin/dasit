@@ -12,4 +12,7 @@ public interface GroupRepository extends CrudRepository<Group, Long> {
 
 	@Query("select id, name, email, status from dasit.groups where name=:name")
 	Group findByName(@Param("name") String email);
+
+	@Query("select * from dasit.groups where status='ACTIVE'")
+	List<Group> findAllActive();
 }
