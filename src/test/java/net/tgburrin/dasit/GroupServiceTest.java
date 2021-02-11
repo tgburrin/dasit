@@ -57,7 +57,27 @@ public class GroupServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void inactivateTestGroup() {
-		Group g = groupRepository.findByName("testgroup3");
+	public void inactivateTestGroup() throws Exception {
+		List<Group> gl = groupService.findAll();
+		Group testGroup = null;
+
+		for(Group g: gl) {
+			if(g.getName().equals("testgroup3")) {
+				testGroup = g;
+			}
+		}
+
+		assertThat(testGroup).isNotNull();
+		testGroup.setInactive();
+		groupService.save(testGroup);
+
+		testGroup = null;
+		gl = groupService.findAll();
+		for(Group g: gl) {
+			if(g.getName().equals("testgroup3")) {
+				testGroup = g;
+			}
+		}
+		assertThat(testGroup).isNull();
 	}
 }
