@@ -16,7 +16,8 @@ public class DatasetWindow {
 	@Column("publish_start_dt") Instant startDt;
 	@Column("publish_end_dt") Instant endDt;
 
-	@Transient String datasetName;
+	@Transient
+	public String datasetName;
 
 	public String getDatasetName() {
 		return datasetName;

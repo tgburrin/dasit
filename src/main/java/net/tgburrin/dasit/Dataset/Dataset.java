@@ -35,13 +35,13 @@ public class Dataset {
 
 	private DatasetStatus status;
 
-	Dataset () {
+	public Dataset () {
 		this.id = null;
 		this.ownerGroupId = null;
 		this.status = DatasetStatus.ACTIVE;
 	}
 
-	Dataset (String dsName, Group owner) {
+	public Dataset (String dsName, Group owner) {
 		this.id = null;
 		this.status = DatasetStatus.ACTIVE;
 
@@ -81,12 +81,20 @@ public class Dataset {
 		this.ownerGroupId = g.readId();
 	}
 
-	public DatasetStatus getStatus() {
-		return this.status;
+	public String getStatus() {
+		return this.status.toString();
 	}
 
 	public void setStatus(String s) {
 		this.status = DatasetStatus.valueOf(s);
+	}
+
+	public void setActive() {
+		this.status = DatasetStatus.ACTIVE;
+	}
+
+	public void setInactive() {
+		this.status = DatasetStatus.INACTIVE;
 	}
 
 	@Override

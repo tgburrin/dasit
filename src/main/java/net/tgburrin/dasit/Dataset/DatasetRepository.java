@@ -8,12 +8,17 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 public interface DatasetRepository extends CrudRepository<Dataset, Long> {
+	/* Dataset object calls */
 	@Query("select * from dasit.datasets where status='ACTIVE'")
 	List<Dataset> findAllActive();
 
 	@Query("select id, name, owner_group, status from dasit.datasets where name=:name")
 	Dataset findByName(@Param("name") String name);
 
+	@Query("select id, name, owner_group, status from dasit.datasets where owner_group=:ownerId and status='ACTIVE'")
+	List<Dataset> findActiveByOwnerId(@Param("ownerId") Long ownerId);
+
+	/* Dataset window calls */
 	@Query("select p.dataset_id, p.publish_start_dt, publish_end_dt from dasit.datasets d join dasit.datasets_published p on d.id = p.dataset_id where d.name=:name order by p.publish_start_dt")
 	List<DatasetWindow> findWindowsByName(@Param("name") String name);
 

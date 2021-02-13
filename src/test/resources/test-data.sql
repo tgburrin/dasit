@@ -5,14 +5,21 @@ insert into dasit.groups (id, name, email, status)
 values
 (1, 'testgroup1', 'testgroup@email.com', 'ACTIVE'),
 (2, 'testgroup2', 'testgroup@email.com', 'ACTIVE'),
-(3, 'testgroup3', 'deprecatedgroup@email.com', 'ACTIVE');
+(3, 'testgroup3', 'deprecatedgroup@email.com', 'ACTIVE'),
+(4, 'testgroup4', 'inactivegroup@email.com', 'INACTIVE')
+;
 
 insert into dasit.datasets (id, name, owner_group, status)
 values
-(1, 'testset1', 1, 'ACTIVE');
+(1, 'testset1', 1, 'ACTIVE'),
+(2, 'testset2', 1, 'INACTIVE'),
+(3, 'testset3', 2, 'ACTIVE'),
+(4, 'deprecated1', 2, 'ACTIVE')
+;
 
 insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
 values
 (1, '2020-08-01', '2020-08-12'),
 (1, '2020-08-14', '2020-08-22'),
-(1, '2020-08-23', '2020-08-25');
+(1, '2020-08-23', '2020-08-25')
+;
