@@ -1,6 +1,7 @@
 package net.tgburrin.dasit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.sql.Timestamp;
@@ -51,8 +52,6 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 	}
 
 	/*** Service Tests ***/
-
-
 	@Test
 	public void findDatasetWindowsByName() {
 		List<DatasetWindow> dsw = appService.findDatasetWindowsByName("testset1");
@@ -82,5 +81,83 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 		/* check that the start time is lower than what we asked for since the window is satisfied by a larger range */
 		assertThat(dw.getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-23T00:00:00.00Z"));
 		assertThat(dw.getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-25T00:00:00.00Z"));
+	}
+
+	@Test
+	public void publishWindows() {
+		DatasetWindow dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		dw.setWindowStartDateTime(Instant.parse("2020-05-17T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-05-18T00:00:00.00Z"));
+
+		dw = appService.addDatasetPublishedWindow(dw);
+		assertThat(dw.getWindowStartDateTime()).isEqualTo(Instant.parse("2020-05-17T00:00:00.00Z"));
+		assertThat(dw.getWindowEndDateTime()).isEqualTo(Instant.parse("2020-05-18T00:00:00.00Z"));
+
+		dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		dw.setWindowStartDateTime(Instant.parse("2020-05-18T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-05-19T00:00:00.00Z"));
+
+		dw = appService.addDatasetPublishedWindow(dw);
+		assertThat(dw.getWindowStartDateTime()).isEqualTo(Instant.parse("2020-05-17T00:00:00.00Z"));
+		assertThat(dw.getWindowEndDateTime()).isEqualTo(Instant.parse("2020-05-19T00:00:00.00Z"));
+	}
+
+	@Test
+	public void publishWindowMerge() {
+		DatasetWindow dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		// Will glue two ranges on either side together and remove one segment in the middle
+		dw.setWindowStartDateTime(Instant.parse("2020-11-14T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-11-18T00:00:00.00Z"));
+
+		dw = appService.addDatasetPublishedWindow(dw);
+		assertThat(dw.getWindowStartDateTime()).isEqualTo(Instant.parse("2020-11-13T00:00:00.00Z"));
+		assertThat(dw.getWindowEndDateTime()).isEqualTo(Instant.parse("2020-11-20T00:00:00.00Z"));
+	}
+
+	@Test
+	public void removeWindow() {
+		DatasetWindow dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		// Will glue two ranges on either side together and remove one segment in the middle
+		dw.setWindowStartDateTime(Instant.parse("2020-08-16T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-08-17T00:00:00.00Z"));
+
+		List<DatasetWindow> dwList = appService.removeDatasetPublishedWindow(dw);
+		// returns an ordered list where the oldest neighbor window is earlier
+		assertEquals(dwList.size(), 2);
+
+		assertThat(dwList.get(0).getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-11T00:00:00.00Z"));
+		assertThat(dwList.get(0).getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-16T00:00:00.00Z"));
+
+		assertThat(dwList.get(1).getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-17T00:00:00.00Z"));
+		assertThat(dwList.get(1).getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-22T00:00:00.00Z"));
+
+		dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		dw.setWindowStartDateTime(Instant.parse("2020-08-01T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-08-13T00:00:00.00Z"));
+
+		dwList = appService.removeDatasetPublishedWindow(dw);
+		// returns an ordered list where the oldest neighbor window is earlier
+		assertEquals(dwList.size(), 1);
+		assertThat(dwList.get(0).getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-13T00:00:00.00Z"));
+		assertThat(dwList.get(0).getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-16T00:00:00.00Z"));
+
+		dw = new DatasetWindow();
+		dw.datasetName = "testset3";
+		dw.setWindowStartDateTime(Instant.parse("2020-08-16T00:00:00.00Z"));
+		dw.setWindowEndDateTime(Instant.parse("2020-08-17T00:00:00.00Z"));
+		// noop removal that does not complain and returns the neighboring segments
+		dwList = appService.removeDatasetPublishedWindow(dw);
+		assertEquals(dwList.size(), 2);
+
+		assertThat(dwList.get(0).getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-13T00:00:00.00Z"));
+		assertThat(dwList.get(0).getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-16T00:00:00.00Z"));
+
+		assertThat(dwList.get(1).getWindowStartDateTime()).isEqualTo(Instant.parse("2020-08-17T00:00:00.00Z"));
+		assertThat(dwList.get(1).getWindowEndDateTime()).isEqualTo(Instant.parse("2020-08-22T00:00:00.00Z"));
 	}
 }
