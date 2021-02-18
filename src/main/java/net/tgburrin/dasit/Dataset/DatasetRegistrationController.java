@@ -13,37 +13,40 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.tgburrin.dasit.DasitService;
 import net.tgburrin.dasit.InvalidDataException;
 import net.tgburrin.dasit.NoRecordFoundException;
 import net.tgburrin.dasit.Group.Group;
-import net.tgburrin.dasit.Group.GroupService;
 
 @RestController
 @RequestMapping("/dataset_registration")
 public class DatasetRegistrationController {
 	@Autowired
-	private DatasetService datasetService;
-
-	@Autowired
-	private GroupService grpService;
+	private DasitService appService;
 
 	@PostMapping(value="/create", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Dataset createDataset(@RequestBody DatasetCreateRequest dsReq) throws InvalidDataException, NoRecordFoundException {
-		Group g = grpService.findByName(dsReq.ownerGroupName);
+		Group g = null;
+		try {
+			g = appService.findGroupByName(dsReq.ownerGroupName);
+		} catch (NoRecordFoundException e) {
+			throw new InvalidDataException("Group '"+dsReq.ownerGroupName+"' could not be found");
+		}
+
 		Dataset d = new Dataset(dsReq.datasetName, g);
 		d.validateRecord();
-		datasetService.save(d);
+		appService.saveDataset(d);
 		return d;
 	}
 
 	@RequestMapping(value="/list", method=RequestMethod.GET)
 	public List<Dataset> listDatasets() throws Exception {
-		return datasetService.findAll();
+		return appService.findAllDatasets();
 	}
 
 	@RequestMapping(value="/by_name/{name}", method=RequestMethod.GET)
 	public Dataset getDataset(@PathVariable("name") String name, Model m) throws Exception {
-		return datasetService.findByName(name);
+		return appService.findDatasetByName(name);
 	}
 }

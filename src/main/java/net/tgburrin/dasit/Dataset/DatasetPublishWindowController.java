@@ -13,32 +13,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.tgburrin.dasit.DasitService;
+
 @RestController
 @RequestMapping("/dataset_publish")
 public class DatasetPublishWindowController {
 	@Autowired
-	private DatasetService datasetService;
+	private DasitService appService;
 
 	@RequestMapping(value="/list_windows/{name}", method=RequestMethod.GET)
 	public List<DatasetWindow> listGroups(@PathVariable("name") String name, Model m) throws Exception {
-		return datasetService.findWindowsByName(name);
+		return appService.findDatasetWindowsByName(name);
 	}
 
 	@PostMapping(value="/check_window", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	public DatasetWindow checkWindow(@RequestBody DatasetWindow dsc) throws Exception {
-		return datasetService.checkWindowExists(dsc);
+		return appService.checkDatasetWindowExists(dsc);
 	}
 
 	@PostMapping(value="/publish_window", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	public DatasetWindow addWindow(@RequestBody DatasetWindow dsc) throws Exception {
-		return datasetService.addPublishedWindow(dsc);
+		return appService.addDatasetPublishedWindow(dsc);
 	}
 
 	@PostMapping(value="/remove_window", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	public List<DatasetWindow> removeWindow(@RequestBody DatasetWindow dsc) throws Exception {
-		return datasetService.removePublishedWindow(dsc);
+		return appService.removeDatasetPublishedWindow(dsc);
 	}
 }

@@ -12,41 +12,42 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import net.tgburrin.dasit.Group.GroupController;
+import net.tgburrin.dasit.Dataset.DatasetRegistrationController;
 
 @AutoConfigureMockMvc
-public class GroupControllerTest extends BaseIntegrationTest {
+public class DatasetReistrationControllerTest extends BaseIntegrationTest {
 	@Autowired
-	private GroupController gc;
+	private DatasetRegistrationController drc;
 
 	@Autowired
 	private MockMvc mvc;
 
 	@Test
 	public void testControllerContext() {
-		assertThat(gc).isNotNull();
+		assertThat(drc).isNotNull();
 	}
 
 	@Test
-	public void testFindGroupByName () throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/groups/by_name/testgroup1")
+	public void testFindDatasetByName () throws Exception {
+		mvc.perform(MockMvcRequestBuilders.get("/dataset_registration/by_name/testset1")
 				.accept(MediaType.APPLICATION_JSON))
 		.andDo(MockMvcResultHandlers.print())
 		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("testgroup@email.com"));
+		.andExpect(MockMvcResultMatchers.jsonPath("$.group.emailAddress").value("testgroup@email.com"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("ACTIVE"));
 	}
 
 	@Test
-	public void testFindGroupByNameNotFound () throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/groups/by_name/mygroup1")
+	public void testFindDatasetByNameNotFound () throws Exception {
+		mvc.perform(MockMvcRequestBuilders.get("/dataset_registration/by_name/mydataset1")
 				.accept(MediaType.APPLICATION_JSON))
 		.andDo(MockMvcResultHandlers.print())
 		.andExpect(MockMvcResultMatchers.status().is(204));
 	}
 
 	@Test
-	public void testListGroups() throws Exception {
-		mvc.perform(MockMvcRequestBuilders.get("/groups/list/")
+	public void testListDatasets () throws Exception {
+		mvc.perform(MockMvcRequestBuilders.get("/dataset_registration/list/")
 				.accept(MediaType.APPLICATION_JSON))
 		.andDo(MockMvcResultHandlers.print())
 		.andExpect(MockMvcResultMatchers.status().isOk())
@@ -54,21 +55,22 @@ public class GroupControllerTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void testCreateGroup () throws Exception {
+	public void testCreateDataset () throws Exception {
 		JSONObject req = new JSONObject();
 		req
-		.put("name", "newGroupName1")
-		.put("emailAddress", "newgroupname1@email.com");
+		.put("datasetName", "newDatasetName1")
+		.put("ownerGroupName", "testgroup2");
 
 		mvc.perform(MockMvcRequestBuilders
-				.post("/groups/create/")
+				.post("/dataset_registration/create/")
 				.content(req.toString())
 				.contentType(MediaType.APPLICATION_JSON)
 				.accept(MediaType.APPLICATION_JSON))
 		.andDo(MockMvcResultHandlers.print())
 		.andExpect(MockMvcResultMatchers.status().is(201))
-		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("newGroupName1"))
-		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("newgroupname1@email.com"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("newDatasetName1"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.group.name").value("testgroup2"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.group.emailAddress").value("testgroup@email.com"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("ACTIVE"));
 	}
 }
