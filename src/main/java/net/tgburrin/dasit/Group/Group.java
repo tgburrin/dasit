@@ -7,8 +7,6 @@ import java.util.regex.Pattern;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import net.tgburrin.dasit.InvalidDataException;
 
 enum GroupStatus {
@@ -49,11 +47,11 @@ public class Group {
 		this.name = n;
 	}
 
-	@JsonProperty("email_address")
+	//@JsonProperty("email_address")
 	public String getEmailAddress() {
 		return this.email;
 	}
-	@JsonProperty("email_address")
+	//@JsonProperty("email_address")
 	public void setEmailAddress(String ea) {
 		this.email = ea;
 	}

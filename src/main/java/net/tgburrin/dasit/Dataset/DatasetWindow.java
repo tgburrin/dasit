@@ -9,6 +9,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import net.tgburrin.dasit.InvalidDataException;
+
 @Table(value = "dasit.datasets_published")
 public class DatasetWindow {
 	@Id
@@ -48,5 +50,13 @@ public class DatasetWindow {
 		s.add("End Datetime: "+this.endDt);
 
 		return String.join("\n", s);
+	}
+
+	public void validate() throws InvalidDataException {
+		if ( datasetName == null )
+			throw new InvalidDataException("A dataset name must be provided");
+
+		if ( startDt == null || endDt == null )
+			throw new InvalidDataException("A dataset start and end time must be provided");
 	}
 }

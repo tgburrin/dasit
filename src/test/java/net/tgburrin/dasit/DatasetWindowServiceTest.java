@@ -71,7 +71,7 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void checkWindowExistsIsFoundService() throws NoRecordFoundException {
+	public void checkWindowExistsIsFoundService() throws NoRecordFoundException, InvalidDataException {
 		DatasetWindow dw = new DatasetWindow();
 		dw.datasetName = "testset1";
 		dw.setWindowStartDateTime(Instant.parse("2020-08-24T00:00:00.00Z"));
@@ -84,7 +84,7 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void publishWindows() {
+	public void publishWindows() throws InvalidDataException {
 		DatasetWindow dw = new DatasetWindow();
 		dw.datasetName = "testset3";
 		dw.setWindowStartDateTime(Instant.parse("2020-05-17T00:00:00.00Z"));
@@ -105,7 +105,7 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void publishWindowMerge() {
+	public void publishWindowMerge() throws InvalidDataException {
 		DatasetWindow dw = new DatasetWindow();
 		dw.datasetName = "testset3";
 		// Will glue two ranges on either side together and remove one segment in the middle
@@ -118,7 +118,7 @@ public class DatasetWindowServiceTest extends BaseIntegrationTest {
 	}
 
 	@Test
-	public void removeWindow() {
+	public void removeWindow() throws InvalidDataException {
 		DatasetWindow dw = new DatasetWindow();
 		dw.datasetName = "testset3";
 		// Will glue two ranges on either side together and remove one segment in the middle

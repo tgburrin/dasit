@@ -27,7 +27,13 @@ public class DatasetRegistrationController {
 	@PostMapping(value="/create", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Dataset createDataset(@RequestBody DatasetCreateRequest dsReq) throws InvalidDataException, NoRecordFoundException {
-		Group g = appService.findGroupByName(dsReq.ownerGroupName);
+		Group g = null;
+		try {
+			g = appService.findGroupByName(dsReq.ownerGroupName);
+		} catch (NoRecordFoundException e) {
+			throw new InvalidDataException("Group '"+dsReq.ownerGroupName+"' could not be found");
+		}
+
 		Dataset d = new Dataset(dsReq.datasetName, g);
 		d.validateRecord();
 		appService.saveDataset(d);

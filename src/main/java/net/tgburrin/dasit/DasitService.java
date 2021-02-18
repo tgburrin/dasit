@@ -92,7 +92,8 @@ public class DasitService {
 		return datasetRepository.findWindowsByName(n);
 	}
 
-	public DatasetWindow checkDatasetWindowExists(DatasetWindow dsw) throws NoRecordFoundException {
+	public DatasetWindow checkDatasetWindowExists(DatasetWindow dsw) throws NoRecordFoundException, InvalidDataException {
+		dsw.validate();
 		Dataset d = datasetRepository.findByName(dsw.datasetName);
 		DatasetWindow found = datasetRepository.checkWindowExists(d.readId(),
 				Timestamp.from(dsw.getWindowStartDateTime()),
@@ -104,14 +105,18 @@ public class DasitService {
 		return found;
 	}
 
-	public DatasetWindow addDatasetPublishedWindow(DatasetWindow dsw) {
+	public DatasetWindow addDatasetPublishedWindow(DatasetWindow dsw) throws InvalidDataException {
+		dsw.validate();
+
 		Dataset d = datasetRepository.findByName(dsw.datasetName);
 		return datasetRepository.addPublishedWindow(d.readId(),
 				Timestamp.from(dsw.getWindowStartDateTime()),
 				Timestamp.from(dsw.getWindowEndDateTime()));
 	}
 
-	public List<DatasetWindow> removeDatasetPublishedWindow(DatasetWindow dsw) {
+	public List<DatasetWindow> removeDatasetPublishedWindow(DatasetWindow dsw) throws InvalidDataException {
+		dsw.validate();
+
 		Dataset d = datasetRepository.findByName(dsw.datasetName);
 		return datasetRepository.removePublishedWindow(d.readId(),
 				Timestamp.from(dsw.getWindowStartDateTime()),
