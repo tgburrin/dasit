@@ -49,4 +49,20 @@ public class DatasetRegistrationController {
 	public Dataset getDataset(@PathVariable("name") String name, Model m) throws Exception {
 		return appService.findDatasetByName(name);
 	}
+
+	@RequestMapping(value="/by_owner/{name}", method=RequestMethod.GET)
+	public List<Dataset> getDatasetsByOwner(@PathVariable("name") String name, Model m) throws Exception {
+		Group g = null;
+		try {
+			g = appService.findGroupByName(name);
+		} catch (NoRecordFoundException e) {
+			throw new InvalidDataException("Group '"+name+"' could not be found");
+		}
+		return appService.findDatasetsByGroupOwner(g.readId());
+	}
+
+	@PostMapping(value="/update/by_name/{name}", consumes = "application/json", produces = "application/json")
+	public Dataset updateDatasetByName(@PathVariable("name") String name, @RequestBody DatasetUpdateRequest dsReq) throws NoRecordFoundException, InvalidDataException {
+		return appService.updateDatasetByName(name, dsReq);
+	}
 }

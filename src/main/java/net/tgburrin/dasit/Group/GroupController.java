@@ -24,6 +24,9 @@ public class GroupController {
 	@PostMapping(value="/create", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Group addGroup(@RequestBody Group g) throws Exception {
+		if(g.getStatus() == null)
+			g.setActive();
+
 		appService.saveGroup(g);
 		return g;
 	}
@@ -38,8 +41,8 @@ public class GroupController {
 		return appService.findGroupByName(name);
 	}
 
-	@RequestMapping(value="/by_id/{id}", method=RequestMethod.GET)
-	public Group getGroupById(@PathVariable("id") Long id, Model m) throws Exception {
-		return appService.findGroupById(id);
+	@PostMapping(value="/update/by_name/{name}", consumes = "application/json", produces = "application/json")
+	public Group updateGroupByName(@PathVariable("name") String name, @RequestBody Group g) throws Exception {
+		return appService.updateGroupByName(name, g);
 	}
 }

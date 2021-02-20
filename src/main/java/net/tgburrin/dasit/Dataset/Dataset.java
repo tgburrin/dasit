@@ -85,8 +85,16 @@ public class Dataset {
 		return this.status.toString();
 	}
 
-	public void setStatus(String s) {
-		this.status = DatasetStatus.valueOf(s);
+	public void setStatus(String s) throws InvalidDataException {
+		try {
+			this.status = DatasetStatus.valueOf(s);
+		} catch ( java.lang.IllegalArgumentException e ) {
+			throw new InvalidDataException("Invalid status '"+s+"'");
+		}
+	}
+
+	public boolean checkIsActive() {
+		return this.status == DatasetStatus.ACTIVE ? true : false;
 	}
 
 	public void setActive() {
@@ -109,7 +117,10 @@ public class Dataset {
 	}
 
 	public void validateRecord() throws InvalidDataException {
-		if(this.name == null || this.name.equals(""))
+		if( this.status == DatasetStatus.ACTIVE && !this.ownerGroup.checkIsActive() )
+			throw new InvalidDataException("A dataset can only be active if the group is active");
+
+		if( this.name == null || this.name.equals("") )
 			throw new InvalidDataException("A valid dataset name must be specified");
 	}
 }
