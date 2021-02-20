@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import net.tgburrin.dasit.Dataset.Dataset;
 import net.tgburrin.dasit.Dataset.DatasetRepository;
+import net.tgburrin.dasit.Dataset.DatasetUpdateRequest;
 import net.tgburrin.dasit.Dataset.DatasetWindow;
 import net.tgburrin.dasit.Group.Group;
 import net.tgburrin.dasit.Group.GroupRepository;
@@ -47,6 +48,23 @@ public class DasitService {
 			return null;
 	}
 
+	public Group updateGroupByName(String name, Group newGroup) throws Exception {
+		Group g = findGroupByName(name);
+		if (g == null)
+			throw new InvalidDataException("Group "+name+" could not be located for update");
+
+		if(newGroup.getName() != null)
+			g.setName(newGroup.getName());;
+
+		if(newGroup.getEmailAddress() != null)
+			g.setEmailAddress(newGroup.getEmailAddress());
+
+		if(newGroup.getStatus() != null)
+			g.setStatus(newGroup.getStatus());
+
+		return saveGroup(g);
+	}
+
 	public Group saveGroup(Group g) throws Exception {
 		if ( g.getStatus() == "INACTIVE" ) {
 			List<Dataset> datasetList = datasetRepository.findActiveByOwnerId(g.readId());
@@ -72,12 +90,32 @@ public class DasitService {
 		return dsList;
 	}
 
+	public List<Dataset> findDatasetsByGroupOwner(Long groupId) {
+		List<Dataset> dsList = new ArrayList<Dataset>();
+		datasetRepository.findByOwnerId(groupId).forEach(dsList::add);
+		return dsList;
+	}
+
 	public Dataset findDatasetByName(String n) throws NoRecordFoundException {
 		Dataset d = datasetRepository.findByName(n);
 		if ( d == null )
 			throw new NoRecordFoundException("Dataset name '"+n+"' could not be found");
 
 		return d;
+	}
+
+	public Dataset updateDatasetByName(String n, DatasetUpdateRequest updateReq) throws NoRecordFoundException, InvalidDataException {
+		Dataset d = findDatasetByName(n);
+		if ( updateReq.ownerGroupName != null && !d.getGroup().getName().equals(updateReq.ownerGroupName) )
+			d.setGroupId(groupRepository.findByName(updateReq.ownerGroupName));
+
+		if ( updateReq.datasetName != null )
+			d.setName(updateReq.datasetName);
+
+		if ( updateReq.status != null )
+			d.setStatus(updateReq.status);
+
+		return saveDataset(d);
 	}
 
 	public Dataset saveDataset(Dataset d) throws InvalidDataException {

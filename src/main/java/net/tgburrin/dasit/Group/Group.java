@@ -26,7 +26,7 @@ public class Group {
 
 	public Group() {
 		this.id = null;
-		this.status = GroupStatus.ACTIVE;
+		this.status = null;
 	}
 
 	public Group(Long id, String name, String email) {
@@ -57,11 +57,19 @@ public class Group {
 	}
 
 	public String getStatus() {
-		return this.status.toString();
+		return this.status == null ? (String) null : this.status.toString();
 	}
 
-	public void setStatus(String s) {
-		this.status = GroupStatus.valueOf(s);
+	public void setStatus(String s) throws InvalidDataException {
+		try {
+			this.status = GroupStatus.valueOf(s);
+		} catch ( java.lang.IllegalArgumentException e ) {
+			throw new InvalidDataException("Invalid status '"+s+"'");
+		}
+	}
+
+	public boolean checkIsActive() {
+		return this.status == GroupStatus.ACTIVE ? true : false;
 	}
 
 	public void setInactive() {
