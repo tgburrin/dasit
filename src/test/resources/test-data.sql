@@ -6,7 +6,9 @@ values
 (1, 'testgroup1', 'testgroup@email.com', 'ACTIVE'),
 (2, 'testgroup2', 'testgroup@email.com', 'ACTIVE'),
 (3, 'testgroup3', 'deprecatedgroup@email.com', 'ACTIVE'),
-(4, 'testgroup4', 'inactivegroup@email.com', 'INACTIVE')
+(4, 'testgroup4', 'inactivegroup@email.com', 'INACTIVE'),
+(5, 'standAloneGroup1', 'another@email.com', 'ACTIVE'),
+(6, 'testgroup6', 'testgroup6@email.com', 'ACTIVE')
 ;
 
 insert into dasit.datasets (id, name, owner_group, status)
@@ -14,7 +16,8 @@ values
 (1, 'testset1', 1, 'ACTIVE'),
 (2, 'testset2', 1, 'INACTIVE'),
 (3, 'testset3', 2, 'ACTIVE'),
-(4, 'deprecated1', 2, 'ACTIVE')
+(4, 'deprecated1', 2, 'ACTIVE'),
+(5, 'todeprecate1', 6, 'ACTIVE')
 ;
 
 insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
