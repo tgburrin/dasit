@@ -1,6 +1,7 @@
 package net.tgburrin.dasit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -70,5 +71,44 @@ public class GroupControllerTest extends BaseIntegrationTest {
 		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("newGroupName1"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("newgroupname1@email.com"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("ACTIVE"));
+	}
+
+	@Test
+	public void testUpdateGroupWithDatasets () throws Exception {
+		JSONObject req = new JSONObject();
+		req
+		.put("status", "INACTIVE")
+		.put("emailAddress", "deprecatedEmail@email.com");
+
+		mvc.perform(MockMvcRequestBuilders
+				.post("/groups/update/by_name/testgroup2")
+				.content(req.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+		.andDo(MockMvcResultHandlers.print())
+		.andExpect(MockMvcResultMatchers.status().is(400))
+		.andExpect(result -> assertEquals(
+				"You may not set a group with active datasets to be inactive",
+				result.getResolvedException().getMessage()
+				));
+	}
+
+	@Test
+	public void testUpdateGroupWithOutDatasets () throws Exception {
+		JSONObject req = new JSONObject();
+		req
+		.put("status", "INACTIVE")
+		.put("emailAddress", "deprecatedEmail@email.com");
+
+		mvc.perform(MockMvcRequestBuilders
+				.post("/groups/update/by_name/standAloneGroup1")
+				.content(req.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+		.andDo(MockMvcResultHandlers.print())
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("standAloneGroup1"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("deprecatedEmail@email.com"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("INACTIVE"));
 	}
 }

@@ -73,4 +73,23 @@ public class DatasetReistrationControllerTest extends BaseIntegrationTest {
 		.andExpect(MockMvcResultMatchers.jsonPath("$.group.emailAddress").value("testgroup@email.com"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("ACTIVE"));
 	}
+
+	@Test
+	public void testUpdateDataset () throws Exception {
+		JSONObject req = new JSONObject();
+		req
+		.put("datasetName", "isdeprecated1")
+		.put("status", "INACTIVE");
+
+		mvc.perform(MockMvcRequestBuilders
+				.post("/dataset_registration/update/by_name/todeprecate1")
+				.content(req.toString())
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON))
+		.andDo(MockMvcResultHandlers.print())
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("isdeprecated1"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.group.name").value("testgroup6"))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("INACTIVE"));
+	}
 }

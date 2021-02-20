@@ -55,7 +55,11 @@ public class GroupServiceTest extends BaseIntegrationTest {
 	@Test
 	public void findAllGroups() {
 		List<Group> gl = appService.findAllGroups();
-		assertEquals(gl.size(), 3);
+		assertThat(gl.size()).isGreaterThan(0);
+
+		for(Group g: gl) {
+			assertThat(g.checkIsActive()).isTrue();
+		}
 	}
 
 	@Test
