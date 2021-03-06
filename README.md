@@ -12,6 +12,8 @@ Set up consumers to query a dataset to see if particular windows of time are ava
 This microservice is based on Spring Boot 2 using gradle and relies on any reasonably recent version of postgresql as a backend database.
 
 ###### Potential improvements
+* General
+  * Data set aliases / alternate names
 * Authentication
   * Permissions so that forgotten passwords may be reset
   * Updates to datasets may be done by the group that owns them
