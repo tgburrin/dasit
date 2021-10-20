@@ -5,6 +5,6 @@ RUN apk add strace gradle bash vim openjdk11-jdk
 
 ENV SPRING_PROFILES_ACTIVE=docker
 
-COPY build/libs/dasit-0.0.1-SNAPSHOT.jar /tmp
+WORKDIR /application_source
 
-ENTRYPOINT ["/usr/bin/java", "-jar", "/tmp/dasit-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["gradle", "--gradle-user-home=/tmp", "build", "-x", "test"]
