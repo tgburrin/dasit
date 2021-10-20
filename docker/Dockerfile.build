@@ -1,9 +1,0 @@
-FROM alpine:3.13
-
-RUN apk update
-RUN apk add strace gradle bash vim openjdk11-jdk
-
-ADD . /application_source
-WORKDIR /application_source
-
-ENTRYPOINT ["gradle", "build", "-x", "test"]
