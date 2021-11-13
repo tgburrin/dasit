@@ -61,10 +61,14 @@ public class Group {
 	}
 
 	public void setStatus(String s) throws InvalidDataException {
-		try {
-			this.status = GroupStatus.valueOf(s);
-		} catch ( java.lang.IllegalArgumentException e ) {
-			throw new InvalidDataException("Invalid status '"+s+"'");
+		if ( s == null || s.isEmpty() ) {
+			this.setActive();
+		} else {
+			try {
+				this.status = GroupStatus.valueOf(s);
+			} catch ( java.lang.IllegalArgumentException e ) {
+				throw new InvalidDataException("Invalid status '"+s+"'");
+			}
 		}
 	}
 
