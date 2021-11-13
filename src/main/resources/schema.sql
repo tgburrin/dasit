@@ -311,8 +311,10 @@ BEGIN
 	delete from dasit.datasets_published dp
 	where dp.dataset_id = dsid and dp.publish_range <@ range;
 
-    select * into rec from dasit.datasets_published dp
-    where dp.dataset_id = dsid and dp.publish_range @> range;
+	select * into rec from dasit.datasets_published dp
+	where dp.dataset_id = dsid and dp.publish_range @> range;
+
+	-- RAISE NOTICE 'Found %', rec;
 	IF FOUND THEN
 		-- This is a window split
 
@@ -322,8 +324,10 @@ BEGIN
 			dp.dataset_id = dsid
 		and dp.publish_start_dt = rec.publish_start_dt;
 
-		insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
-		values (dsid, ed, rec.publish_end_dt);
+		IF rec.publish_end_dt > ed THEN
+			insert into dasit.datasets_published (dataset_id, publish_start_dt, publish_end_dt)
+			values (dsid, ed, rec.publish_end_dt);
+		END IF;
 	ELSE
 		-- These are one or more intersecting windows on the upper and lower bounds
 

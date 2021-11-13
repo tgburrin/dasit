@@ -34,7 +34,14 @@ public class DatasetRegistrationController {
 			throw new InvalidDataException("Group '"+dsReq.ownerGroupName+"' could not be found");
 		}
 
-		Dataset d = new Dataset(dsReq.datasetName, g);
+		Dataset d = null;
+		try {
+			// There is apparently no way to catch the duplicate key exception and handle that gracefully
+			d = appService.findDatasetByName(dsReq.datasetName);
+			throw new InvalidDataException("Dataset "+d.getName()+" already exists belonging to group "+d.getGroup().getName());
+		} catch (NoRecordFoundException e) {}
+
+		d = new Dataset(dsReq.datasetName, g);
 		d.validateRecord();
 		appService.saveDataset(d);
 		return d;

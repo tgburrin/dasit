@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.tgburrin.dasit.DasitService;
+import net.tgburrin.dasit.InvalidDataException;
 
 @RestController
 @RequestMapping("/dataset_publish")
@@ -35,6 +36,9 @@ public class DatasetPublishWindowController {
 	@PostMapping(value="/publish_window", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.OK)
 	public DatasetWindow addWindow(@RequestBody DatasetWindow dsc) throws Exception {
+		if (dsc.getWindowStartDateTime() == null || dsc.getWindowEndDateTime() == null)
+			throw new InvalidDataException("Invalid start or end datetime provided for dataset "+dsc.getDatasetName());
+
 		return appService.addDatasetPublishedWindow(dsc);
 	}
 
