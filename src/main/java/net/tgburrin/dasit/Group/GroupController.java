@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.tgburrin.dasit.DasitService;
+import net.tgburrin.dasit.InvalidDataException;
+import net.tgburrin.dasit.NoRecordFoundException;
 
 @RestController
 @RequestMapping("/groups")
@@ -23,12 +25,19 @@ public class GroupController {
 
 	@PostMapping(value="/create", consumes = "application/json", produces = "application/json")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Group addGroup(@RequestBody Group g) throws Exception {
-		if(g.getStatus() == null)
-			g.setActive();
+	public Group addGroup(@RequestBody Group group) throws Exception {
+		// this doesn't work and needs to be handled before the object is created
+		if(group.getStatus() == null)
+			group.setActive();
 
-		appService.saveGroup(g);
-		return g;
+		Group g = null;
+		try {
+			g = appService.findGroupByName(group.getName());
+			throw new InvalidDataException("Group "+g.getName()+" already exists belonging with email "+g.getEmailAddress());
+		} catch (NoRecordFoundException e) {}
+
+		appService.saveGroup(group);
+		return group;
 	}
 
 	@RequestMapping(value="/list", method=RequestMethod.GET)
