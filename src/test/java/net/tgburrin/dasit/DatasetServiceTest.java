@@ -80,7 +80,7 @@ public class DatasetServiceTest extends BaseIntegrationTest {
 
 	@Test
 	public void addDataset() throws Exception {
-		Group ownerGroup = appService.findGroupByName("testgroup2");
+		Group ownerGroup = appService.findGroupByName("testgroup7");
 		Dataset newDs = new Dataset("", ownerGroup);
 
 		assertThrows(InvalidDataException.class, () -> {
