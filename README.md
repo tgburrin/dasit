@@ -8,6 +8,8 @@ Create one or more groups, which are unique by name and additionally identified 
 
 Set up consumers to query a dataset to see if particular windows of time are available.
 
+Running a local copy of it should allow a swagger ui to be visible at http://localhost:8080/swagger-ui/
+
 ###### Technical Requirements
 This microservice is based on Spring Boot 2 using gradle and relies on any reasonably recent version of postgresql as a backend database.
 
