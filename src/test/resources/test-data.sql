@@ -8,7 +8,8 @@ values
 (3, 'testgroup3', 'deprecatedgroup@email.com', 'ACTIVE'),
 (4, 'testgroup4', 'inactivegroup@email.com', 'INACTIVE'),
 (5, 'standAloneGroup1', 'another@email.com', 'ACTIVE'),
-(6, 'testgroup6', 'testgroup6@email.com', 'ACTIVE')
+(6, 'testgroup6', 'testgroup6@email.com', 'ACTIVE'),
+(7, 'testgroup7', 'testgroup7@email.com', 'ACTIVE')
 ;
 
 insert into dasit.datasets (id, name, owner_group, status)
