@@ -20,7 +20,7 @@ enum DatasetStatus {
 	;
 }
 
-@Table(value = "dasit.datasets")
+@Table(value = "datasets")
 public class Dataset {
 	@Id
 	private Long id;

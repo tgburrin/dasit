@@ -5,7 +5,9 @@ import java.util.List;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface GroupRepository extends CrudRepository<Group, Long> {
 	@Query("select id, name, email, status from dasit.groups where email=:email")
 	List<Group> findByEmailAddress(@Param("email") String email);

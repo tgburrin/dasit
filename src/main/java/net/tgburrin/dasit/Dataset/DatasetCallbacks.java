@@ -1,6 +1,7 @@
 package net.tgburrin.dasit.Dataset;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.relational.core.mapping.event.AfterLoadCallback;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,7 @@ import net.tgburrin.dasit.Group.Group;
 @Component
 public class DatasetCallbacks implements AfterLoadCallback<Dataset> {
 	@Autowired
+	@Lazy
 	private DasitService appService;
 
 	@Override

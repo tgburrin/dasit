@@ -3,12 +3,14 @@ package net.tgburrin.dasit.Dataset;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.relational.core.mapping.event.AfterLoadCallback;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DatasetWindowCallbacks implements AfterLoadCallback<DatasetWindow> {
 	@Autowired
+	@Lazy
 	private DatasetRepository dr;
 
 	@Override

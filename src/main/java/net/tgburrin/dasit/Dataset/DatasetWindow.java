@@ -11,7 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import net.tgburrin.dasit.InvalidDataException;
 
-@Table(value = "dasit.datasets_published")
+@Table(value = "datasets_published")
 public class DatasetWindow {
 	@Id
 	@Column("dataset_id") Long datasetId;

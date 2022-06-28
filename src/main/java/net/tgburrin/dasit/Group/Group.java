@@ -15,7 +15,7 @@ enum GroupStatus {
 	;
 }
 
-@Table(value = "dasit.groups")
+@Table(value = "groups")
 public class Group {
 	@Id
 	private Long id;

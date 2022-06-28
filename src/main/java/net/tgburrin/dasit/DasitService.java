@@ -19,7 +19,6 @@ import net.tgburrin.dasit.Group.GroupRepository;
 public class DasitService {
 	@Autowired
 	private GroupRepository groupRepository;
-
 	@Autowired
 	private DatasetRepository datasetRepository;
 
@@ -102,6 +101,14 @@ public class DasitService {
 			throw new NoRecordFoundException("Dataset name '"+n+"' could not be found");
 
 		return d;
+	}
+
+	public Dataset findDatasetById(Long dsId) throws NoRecordFoundException {
+		Optional<Dataset> d = datasetRepository.findById(dsId);
+		if (d.isPresent())
+			return d.get();
+		else
+			throw new NoRecordFoundException("Dataset name '"+dsId+"' could not be found");
 	}
 
 	public Dataset updateDatasetByName(String n, DatasetUpdateRequest updateReq) throws NoRecordFoundException, InvalidDataException {
