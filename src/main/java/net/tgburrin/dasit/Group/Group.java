@@ -8,12 +8,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import net.tgburrin.dasit.InvalidDataException;
+import net.tgburrin.dasit.StatusEnum;
 
-enum GroupStatus {
-	ACTIVE,
-	INACTIVE
-	;
-}
+// https://medium.com/javarevisited/an-effective-way-to-use-java-enums-in-your-spring-application-485c969794a8
 
 @Table(value = "groups")
 public class Group {
@@ -22,7 +19,7 @@ public class Group {
 
 	private String name;
 	private String email;
-	private GroupStatus status;
+	private StatusEnum status;
 
 	public Group() {
 		this.id = null;
@@ -33,7 +30,7 @@ public class Group {
 		this.id = id;
 		this.name = name;
 		this.email = email;
-		this.status = GroupStatus.ACTIVE;
+		this.status = StatusEnum.ACTIVE;
 	}
 
 	public long readId() {
@@ -65,7 +62,7 @@ public class Group {
 			this.setActive();
 		} else {
 			try {
-				this.status = GroupStatus.valueOf(s);
+				this.status = StatusEnum.getEnum(s);
 			} catch ( java.lang.IllegalArgumentException e ) {
 				throw new InvalidDataException("Invalid status '"+s+"'");
 			}
@@ -73,15 +70,15 @@ public class Group {
 	}
 
 	public boolean checkIsActive() {
-		return this.status == GroupStatus.ACTIVE ? true : false;
+		return this.status == StatusEnum.ACTIVE ? true : false;
 	}
 
 	public void setInactive() {
-		this.status = GroupStatus.INACTIVE;
+		this.status = StatusEnum.INACTIVE;
 	}
 
 	public void setActive() {
-		this.status = GroupStatus.ACTIVE;
+		this.status = StatusEnum.ACTIVE;
 	}
 
 	@Override
