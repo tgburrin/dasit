@@ -10,15 +10,10 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.util.Assert;
 
 import net.tgburrin.dasit.InvalidDataException;
+import net.tgburrin.dasit.StatusEnum;
 import net.tgburrin.dasit.Group.Group;
 
 // https://spring.io/blog/2018/09/24/spring-data-jdbc-references-and-aggregates
-
-enum DatasetStatus {
-	ACTIVE,
-	INACTIVE
-	;
-}
 
 @Table(value = "datasets")
 public class Dataset {
@@ -33,17 +28,17 @@ public class Dataset {
 	@Transient
 	private Group ownerGroup;
 
-	private DatasetStatus status;
+	private StatusEnum status;
 
 	public Dataset () {
 		this.id = null;
 		this.ownerGroupId = null;
-		this.status = DatasetStatus.ACTIVE;
+		this.status = StatusEnum.ACTIVE;
 	}
 
 	public Dataset (String dsName, Group owner) {
 		this.id = null;
-		this.status = DatasetStatus.ACTIVE;
+		this.status = StatusEnum.ACTIVE;
 
 		this.name = dsName;
 		this.setGroupId(owner);
@@ -87,22 +82,22 @@ public class Dataset {
 
 	public void setStatus(String s) throws InvalidDataException {
 		try {
-			this.status = DatasetStatus.valueOf(s);
+			this.status = StatusEnum.valueOf(s);
 		} catch ( java.lang.IllegalArgumentException e ) {
 			throw new InvalidDataException("Invalid status '"+s+"'");
 		}
 	}
 
 	public boolean checkIsActive() {
-		return this.status == DatasetStatus.ACTIVE ? true : false;
+		return this.status == StatusEnum.ACTIVE ? true : false;
 	}
 
 	public void setActive() {
-		this.status = DatasetStatus.ACTIVE;
+		this.status = StatusEnum.ACTIVE;
 	}
 
 	public void setInactive() {
-		this.status = DatasetStatus.INACTIVE;
+		this.status = StatusEnum.INACTIVE;
 	}
 
 	@Override
@@ -117,7 +112,7 @@ public class Dataset {
 	}
 
 	public void validateRecord() throws InvalidDataException {
-		if( this.status == DatasetStatus.ACTIVE && !this.ownerGroup.checkIsActive() )
+		if( this.status == StatusEnum.ACTIVE && !this.ownerGroup.checkIsActive() )
 			throw new InvalidDataException("A dataset can only be active if the group is active");
 
 		if( this.name == null || this.name.equals("") )

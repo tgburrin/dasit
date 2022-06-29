@@ -17,7 +17,7 @@ public interface DatasetRepository extends CrudRepository<Dataset, Long> {
 	@Query("select id, name, owner_group, status from dasit.datasets where name=:name")
 	Dataset findByName(@Param("name") String name);
 
-	@Query("select id, name, owner_group, status from dasit.datasets where owner_group=:ownerId and status='A'")
+	@Query("select id, name, owner_group, status from dasit.datasets where owner_group=:ownerId and status='ACTIVE'")
 	List<Dataset> findActiveByOwnerId(@Param("ownerId") Long ownerId);
 
 	@Query("select id, name, owner_group, status from dasit.datasets where owner_group=:ownerId")

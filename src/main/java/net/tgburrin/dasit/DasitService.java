@@ -65,7 +65,7 @@ public class DasitService {
 	}
 
 	public Group saveGroup(Group g) throws Exception {
-		if ( g.getStatus() == "I" ) {
+		if ( g.getStatus() == "INACTIVE" ) {
 			List<Dataset> datasetList = datasetRepository.findActiveByOwnerId(g.readId());
 			if ( datasetList.size() > 0 )
 				throw new InvalidDataException("You may not set a group with active datasets to be inactive");

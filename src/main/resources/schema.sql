@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS dasit.groups (
 	updated timestamptz not null,
 	name text NOT NULL,
 	email text NOT NULL,
-	status char NOT NULL
+	status text NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_uq1_groups_name on dasit.groups(name);
 

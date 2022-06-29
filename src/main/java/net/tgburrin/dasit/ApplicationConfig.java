@@ -1,8 +1,5 @@
 package net.tgburrin.dasit;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
@@ -37,8 +34,4 @@ class ApplicationConfig extends AbstractJdbcConfiguration {
 			}
 		};
 	}
-
-	protected List<?> userConverters() {
-      return Arrays.asList(new StatusEnumToStringConverter(), new StringToStatusEnumConverter());
-    }
 }

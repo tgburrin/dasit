@@ -62,7 +62,7 @@ public class Group {
 			this.setActive();
 		} else {
 			try {
-				this.status = StatusEnum.getEnum(s);
+				this.status = StatusEnum.valueOf(s);
 			} catch ( java.lang.IllegalArgumentException e ) {
 				throw new InvalidDataException("Invalid status '"+s+"'");
 			}

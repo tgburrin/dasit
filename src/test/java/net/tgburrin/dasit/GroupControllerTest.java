@@ -70,14 +70,14 @@ public class GroupControllerTest extends BaseIntegrationTest {
 		.andExpect(MockMvcResultMatchers.status().is(201))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("newGroupName1"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("newgroupname1@email.com"))
-		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("A"));
+		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("ACTIVE"));
 	}
 
 	@Test
 	public void testUpdateGroupWithDatasets () throws Exception {
 		JSONObject req = new JSONObject();
 		req
-		.put("status", "I")
+		.put("status", "INACTIVE")
 		.put("emailAddress", "deprecatedEmail@email.com");
 
 		mvc.perform(MockMvcRequestBuilders
@@ -97,7 +97,7 @@ public class GroupControllerTest extends BaseIntegrationTest {
 	public void testUpdateGroupWithOutDatasets () throws Exception {
 		JSONObject req = new JSONObject();
 		req
-		.put("status", "I")
+		.put("status", "INACTIVE")
 		.put("emailAddress", "deprecatedEmail@email.com");
 
 		mvc.perform(MockMvcRequestBuilders
@@ -109,6 +109,6 @@ public class GroupControllerTest extends BaseIntegrationTest {
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("standAloneGroup1"))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.emailAddress").value("deprecatedEmail@email.com"))
-		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("I"));
+		.andExpect(MockMvcResultMatchers.jsonPath("$.status").value("INACTIVE"));
 	}
 }

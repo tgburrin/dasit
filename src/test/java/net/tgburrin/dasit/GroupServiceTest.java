@@ -73,7 +73,7 @@ public class GroupServiceTest extends BaseIntegrationTest {
 		g.setEmailAddress("myfixed@email.com");
 		appService.saveGroup(g);
 
-		assertThat(g.getStatus()).isEqualTo("A");
+		assertThat(g.getStatus()).isEqualTo("ACTIVE");
 		assertThat(g.readId()).isGreaterThan(100);
 	}
 
